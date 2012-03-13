@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class AssignmentControllerTest {
 
     @Test
-    public void testGenerateAssignments(){
+    public void testGenerateAssignmentsProcess(){
         try{
             java.io.File f = new java.io.File(".");
             System.out.println(f.getCanonicalPath());
@@ -34,7 +34,17 @@ public class AssignmentControllerTest {
             ArrayList<Circuit> circuits = (ArrayList<Circuit>)AssignmentController.getInstance().getCircuits();
             for(Circuit circuit : circuits){
                 System.out.println(circuit.toString());
+                assert circuit.getSortedJugglers().size() == 12;
             }
+
+            System.out.println("");
+            System.out.println("Assignments:");
+            System.out.println("");
+            for(Circuit circuit : circuits){
+                System.out.println(circuit.getAssignmentsAsString());
+            }
+
+
 
         }catch (Exception ex){
             Assert.fail(ex.toString());

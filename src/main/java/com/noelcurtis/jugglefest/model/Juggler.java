@@ -15,6 +15,7 @@ public class Juggler{
     private int pizzazz;
     private Collection<String> preferredCircuitNames;
     private Dictionary<String, Integer> circuitScores;
+    private Collection<String> actualCircuitRankingNames;
     private String name;
 
     public Juggler(){
@@ -89,6 +90,43 @@ public class Juggler{
 
     public void setCircuitScores(Dictionary<String, Integer> circuitScores) {
         this.circuitScores = circuitScores;
+        this.setupActualCircuitRanking();
+    }
+
+    public Collection<String> getActualCircuitRankingNames() {
+        return actualCircuitRankingNames;
+    }
+
+    public void setupActualCircuitRanking(){
+        LinkedList<String> actualCircuitRankings = new LinkedList<String>();
+
+        for(String circuitName : this.preferredCircuitNames){
+
+            if(actualCircuitRankings.size() == 0){
+                actualCircuitRankings.addFirst(circuitName);
+            }else if(actualCircuitRankings.size() == 1){
+                if (this.getCircuitScores().get(circuitName) > this.getCircuitScores().get(actualCircuitRankings.getFirst()))
+                {
+                    actualCircuitRankings.addFirst(circuitName);
+                }else{
+                    actualCircuitRankings.add(1, circuitName);
+                }
+            }
+            else{
+                Boolean insertedFlag = false;
+                for(int i = 0; i < actualCircuitRankings.size() ;i++){
+                    if(this.getCircuitScores().get(circuitName) > this.getCircuitScores().get(actualCircuitRankings.get(i))){
+                        actualCircuitRankings.add(i, circuitName);
+                        insertedFlag = true;
+                        break;
+                    }
+                }
+                if(!insertedFlag){
+                    actualCircuitRankings.addLast(circuitName);
+                }
+            }
+        }
+        this.actualCircuitRankingNames = actualCircuitRankings;
     }
 
     @Override
@@ -101,5 +139,15 @@ public class Juggler{
             }
         }
         return description + "\n" + circuitScores;
+    }
+
+    public String getCircuitScoresAsString(){
+        String circuitScores = "";
+        if(this.circuitScores != null){
+            for(String key : ((Hashtable<String, Integer>)this.circuitScores).keySet()){
+                circuitScores += key+ ":" + this.circuitScores.get(key) + ",";
+            }
+        }
+        return circuitScores;
     }
 }

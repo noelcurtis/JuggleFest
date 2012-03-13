@@ -16,7 +16,6 @@ public class AssignmentController {
 
     private Collection<Juggler> jugglers;
     private Collection<Circuit> circuits;
-    //private Dictionary<String, LinkedList<Juggler>> sortedJugglers;
 
     public Collection<Juggler> getJugglers() {
         return jugglers;
@@ -49,6 +48,42 @@ public class AssignmentController {
     public void generateAssignments(String fileName)throws Exception{
         this.createModel(fileName);
         this.calculateCircuitScores();
+        this.pruneJugglersFromCircuits();
+    }
+
+
+    private void pruneJugglersFromCircuits() throws Exception{
+        for(Juggler juggler : jugglers){
+            ArrayList<Circuit> conflictedJugglerCircuits = new ArrayList<Circuit>();
+            int  lowestJugglerPosition = ((ArrayList<Circuit>)this.circuits).get(0).getSortedJugglers().indexOf(juggler);
+            Circuit lowestPositionCircuit =((ArrayList<Circuit>)this.circuits).get(0);
+            for(Circuit circuit : circuits){
+                if(circuit.getSortedJugglers().indexOf(juggler) < lowestJugglerPosition
+                        && circuit != ((ArrayList<Circuit>)this.circuits).get(0)){
+                    lowestJugglerPosition=circuit.getSortedJugglers().indexOf(juggler);
+                    lowestPositionCircuit = circuit;
+                }
+                else if(circuit.getSortedJugglers().indexOf(juggler) == lowestJugglerPosition
+                        && circuit != ((ArrayList<Circuit>)this.circuits).get(0)){
+                    conflictedJugglerCircuits.add(circuit);
+                }
+            }
+            if(!conflictedJugglerCircuits.isEmpty()){
+                conflictedJugglerCircuits.add(lowestPositionCircuit);
+                int lowestCircuitPreference = ((LinkedList<String>)juggler.getActualCircuitRankingNames()).indexOf(conflictedJugglerCircuits.get(0).getName());
+                Circuit currentLowestCircuit = conflictedJugglerCircuits.get(0);
+                for(Circuit conflictedCircuit : conflictedJugglerCircuits){
+                    if(((LinkedList<String>)juggler.getActualCircuitRankingNames()).indexOf(conflictedCircuit.getName()) < lowestCircuitPreference){
+                        currentLowestCircuit = conflictedCircuit;
+                        lowestCircuitPreference = ((LinkedList<String>)juggler.getActualCircuitRankingNames()).indexOf(conflictedCircuit.getName());
+                    }
+                }
+                currentLowestCircuit.assignJuggler(juggler);
+
+            }else{
+                lowestPositionCircuit.assignJuggler(juggler);
+            }
+        }
     }
 
     /**
@@ -64,8 +99,9 @@ public class AssignmentController {
 
     /**
      * Use to calculate Circuit Scores for all Jugglers
+     * @throws Exception
      */
-    private void calculateCircuitScores(){
+    private void calculateCircuitScores()throws Exception{
 
         for(Juggler juggler : this.jugglers){
             Hashtable<String, Integer> circuitScores = new Hashtable<String, Integer>();
@@ -81,20 +117,30 @@ public class AssignmentController {
      * Use to insert a Juggler into a sorted Circuit List
      * @param jugglerToInsert
      */
-    private void insertJugglerForCircuits(Juggler jugglerToInsert){
+    private void insertJugglerForCircuits(Juggler jugglerToInsert) throws Exception{
         for(Circuit circuit : this.circuits){
             if(circuit.getSortedJugglers() == null){
                 circuit.setSortedJugglers(new LinkedList<Juggler>());
                 circuit.getSortedJugglers().addFirst(jugglerToInsert);
+            }else if(circuit.getSortedJugglers().size() == 1){
+                if (jugglerToInsert.getCircuitScores().get(circuit.getName()) > circuit.getSortedJugglers().getFirst().getCircuitScores().get(circuit.getName()))
+                {
+                    circuit.getSortedJugglers().addFirst(jugglerToInsert);
+                }else{
+                    circuit.getSortedJugglers().add(1, jugglerToInsert);
+                }
             }
             else{
+                Boolean insertedFlag = false;
                 for(int i = 0; i < circuit.getSortedJugglers().size() ;i++){
-                    if(jugglerToInsert.getCircuitScores().get(circuit.getName()) < circuit.getSortedJugglers().get(i).getCircuitScores().get(circuit.getName())){
-                        circuit.getSortedJugglers().add(i+1, jugglerToInsert);
-                    }else if(jugglerToInsert.getCircuitScores().get(circuit.getName()) > circuit.getSortedJugglers().get(0).getCircuitScores().get(circuit.getName())){
-                        circuit.getSortedJugglers().addFirst(jugglerToInsert);
+                    if(jugglerToInsert.getCircuitScores().get(circuit.getName()) > circuit.getSortedJugglers().get(i).getCircuitScores().get(circuit.getName())){
+                        circuit.getSortedJugglers().add(i, jugglerToInsert);
+                        insertedFlag = true;
                         break;
                     }
+                }
+                if(!insertedFlag){
+                    circuit.getSortedJugglers().addLast(jugglerToInsert);
                 }
             }
         }    

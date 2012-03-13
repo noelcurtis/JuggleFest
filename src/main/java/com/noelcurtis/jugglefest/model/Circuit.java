@@ -17,6 +17,7 @@ public class Circuit {
     private int pizzazz;
     private String name;
     private LinkedList<Juggler> sortedJugglers;
+    private Collection<Juggler> jugglerAssignments;
 
     public Circuit(){
 
@@ -40,6 +41,13 @@ public class Circuit {
         this.endurance = endurance;
         this.pizzazz = pizzazz;
         this.name = name;
+    }
+
+    public void assignJuggler(Juggler juggler){
+        if(this.jugglerAssignments==null){
+            this.jugglerAssignments = new ArrayList<Juggler>();
+        }
+        this.jugglerAssignments.add(juggler);
     }
     
     public int getHandEyeCoordination() {
@@ -82,6 +90,14 @@ public class Circuit {
         this.sortedJugglers = sortedJugglers;
     }
 
+    public Collection<Juggler> getJugglerAssignments() {
+        return jugglerAssignments;
+    }
+
+    public void setJugglerAssignments(Collection<Juggler> jugglerAssignments) {
+        this.jugglerAssignments = jugglerAssignments;
+    }
+
     @Override
     public String toString(){
         String description= "Name: " + this.name + " Hand Eye Coordination: " + this.handEyeCoordination + " Endurance: "+ this.endurance + " Pizzaz: "+ this.pizzazz + "\n";
@@ -90,5 +106,14 @@ public class Circuit {
             jugglers += juggler.getName() + " " + juggler.getCircuitScores().get(this.name) + " ";
         }
         return description + jugglers;
+    }
+
+    public String getAssignmentsAsString(){
+        String jugglers = this.name + " ";
+        for(Juggler juggler : this.jugglerAssignments){
+            String jugglerS = juggler.getName() + " "+ juggler.getCircuitScoresAsString();
+            jugglers += jugglerS;
+        }
+        return jugglers;
     }
 }
