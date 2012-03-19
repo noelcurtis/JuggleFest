@@ -29,7 +29,7 @@ public class AssignmentControllerTest {
 
             System.out.println("");
             System.out.println("");
-            System.out.println("Overall Circuit Scores:");
+            System.out.println("Overall Circuit Scores, Juggler Ranking for each Circuit:");
             System.out.println("");
             ArrayList<Circuit> circuits = (ArrayList<Circuit>)AssignmentController.getInstance().getCircuits();
             for(Circuit circuit : circuits){
@@ -43,9 +43,6 @@ public class AssignmentControllerTest {
             for(Circuit circuit : circuits){
                 System.out.println(circuit.getAssignmentsAsString());
             }
-
-
-
         }catch (Exception ex){
             Assert.fail(ex.toString());
         }
